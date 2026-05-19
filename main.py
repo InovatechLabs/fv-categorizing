@@ -8,13 +8,14 @@ app = FastAPI(title="API de Mapeamento de Perfis (Sports Analytics)")
 
 kmeans = joblib.load('modelo_kmeans.pkl')
 scaler = joblib.load('scaler_kmeans.pkl')
+imputer = joblib.load('imputer_kmeans.pkl')
 
 
 PROFILE_MAP = {
-    0: "Low Intensity",
-    1: "Balanced",
-    2: "Low Intensity",
-    3: "Explosive",
+    0: "Balanced",        
+    1: "Explosive",       
+    2: "Low Intensity",    
+    3: "High Impact Load", 
     4: "High Endurance"
 }
 
@@ -42,7 +43,8 @@ def predict_profile(metrics: AthleteMetrics):
         'No. of Sprints': metrics.no_of_sprints
     }])
     
-    X_scaled = scaler.transform(df_input)
+    X_imputed = imputer.transform(df_input)
+    X_scaled = scaler.transform(X_imputed)
     cluster_id = int(kmeans.predict(X_scaled)[0])
     
     profile_name = PROFILE_MAP.get(cluster_id, "Balanced")
